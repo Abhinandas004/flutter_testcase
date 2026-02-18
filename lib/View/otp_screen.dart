@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_testcase_abhinand/View/home_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pinput/pinput.dart';
 
@@ -9,6 +10,7 @@ class OtpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // pinput theme
     final defaultPinTheme = PinTheme(
       width: 55,
       height: 55,
@@ -58,7 +60,7 @@ class OtpScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                "Enter the verification code we just sent to your\nnumber +91 *******21.",
+                "Enter the verification code we just sent to your number +91 *******21.",
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -66,7 +68,7 @@ class OtpScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 23),
+            SizedBox(height: 24),
 
             // OTP Input
             Padding(
@@ -111,7 +113,8 @@ class OtpScreen extends StatelessWidget {
             SizedBox(height: 24),
 
             // Resend otp
-            Row(mainAxisAlignment: MainAxisAlignment.center,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 RichText(
                   text: TextSpan(
@@ -137,7 +140,8 @@ class OtpScreen extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 24,),
+            SizedBox(height: 24),
+
             //Verify Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -152,7 +156,10 @@ class OtpScreen extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    // TODO: Verify OTP
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                    );
                   },
                   child: Text(
                     "Verify",

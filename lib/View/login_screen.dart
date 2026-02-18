@@ -36,9 +36,11 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 16),
+
+            // Text Field
             Padding(
               padding: const EdgeInsets.only(left: 16, right: 16),
-              child: TextField(
+              child: TextFormField(
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   hint: Row(
@@ -75,7 +77,7 @@ class LoginScreen extends StatelessWidget {
                   TextSpan(
                     text: "By Continuing, I agree to TotalX’s ",
                     style: GoogleFonts.montserrat(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: Color(0xff7D7D7D),
                     ),
@@ -83,7 +85,7 @@ class LoginScreen extends StatelessWidget {
                   TextSpan(
                     text: "Terms and condition",
                     style: GoogleFonts.montserrat(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: Colors.blue,
                     ),
@@ -91,7 +93,7 @@ class LoginScreen extends StatelessWidget {
                   TextSpan(
                     text: " & ",
                     style: GoogleFonts.montserrat(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: Color(0xff7D7D7D),
                     ),
@@ -99,7 +101,7 @@ class LoginScreen extends StatelessWidget {
                   TextSpan(
                     text: " Privacy Policy",
                     style: GoogleFonts.montserrat(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: Colors.blue,
                     ),
@@ -108,6 +110,8 @@ class LoginScreen extends StatelessWidget {
               ), ),
             ),
             SizedBox(height: 24),
+
+            // Get OTP Button
             InkWell(
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => OtpScreen(),));
