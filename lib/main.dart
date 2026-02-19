@@ -4,15 +4,17 @@ import 'package:provider/provider.dart';
 import 'View/login_screen.dart';
 import 'ViewModel/user_view_model.dart';
 
-void main() async {
-  await MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (_) => UserViewModel()),
-    ],
-    child: MyApp(),
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserViewModel()),
+      ],
+      child: const MyApp(),
+    ),
   );
-
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
