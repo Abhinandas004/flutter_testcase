@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'View/login_screen.dart';
+import 'ViewModel/user_view_model.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  await MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => UserViewModel()),
+    ],
+    child: MyApp(),
+  );
+
 }
 
 class MyApp extends StatelessWidget {
