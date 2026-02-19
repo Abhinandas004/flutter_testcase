@@ -1,22 +1,15 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-
-import '../Model/user_model.dart';
 import '../ViewModel/user_view_model.dart';
 import 'Widgets/add_user_dialog.dart';
 
 class HomeScreen extends StatelessWidget {
-
   HomeScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     final users = context.watch<UserViewModel>().users;
-
     return Scaffold(
       backgroundColor: Color(0xFFEBEBEB),
       // Floating Action Button
@@ -37,7 +30,6 @@ class HomeScreen extends StatelessWidget {
           child: Icon(Icons.add, color: Colors.white, size: 32),
         ),
       ),
-
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
@@ -78,13 +70,14 @@ class HomeScreen extends StatelessWidget {
                         Icon(Icons.search, color: Color(0xff484848)),
                         SizedBox(width: 10),
                         Expanded(
-                          child: TextField(
+                          child: TextFormField(
+                            onChanged: (value) {
+                              context.read<UserViewModel>().setSearchQuery(
+                                value,
+                              );
+                            },
                             decoration: InputDecoration(
                               hintText: "Search by name",
-                              hintStyle: GoogleFonts.montserrat(
-                                color: Color(0xff919191),
-                                fontSize: 14,
-                              ),
                               border: InputBorder.none,
                               isCollapsed: true,
                             ),
@@ -95,7 +88,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 12),
-
                 // filter button
                 InkWell(
                   onTap: () {
@@ -127,70 +119,71 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-
           // User list
           Expanded(
             child: users.isEmpty
                 ? Center(
-              child: Text(
-                "No users added yet.",
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  color: Colors.black,
-                ),
-              ),
-            )
-                :
-            ListView.builder(
-              itemCount: users.length,
-              itemBuilder: (context, index) {
-                final user = users[index];
-                return Card(
-                  color: Colors.white,
-                  elevation: 1,
-                  margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundImage: user.imagePath != null
-                              ? FileImage(File(user.imagePath!))
-                              : null,
-                          child: user.imagePath == null
-                              ? Icon(Icons.person)
-                              : null,
-                        ),
-                        SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              user.name,
-                              style: GoogleFonts.montserrat(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              "Age: ${user.age}",
-                              style: GoogleFonts.montserrat(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                    child: Text(
+                      "No users.",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
                     ),
+                  )
+                : ListView.builder(
+                    itemCount: users.length,
+                    itemBuilder: (context, index) {
+                      final user = users[index];
+                      return Card(
+                        color: Colors.white,
+                        elevation: 1,
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundImage: user.imagePath != null
+                                    ? FileImage(File(user.imagePath!))
+                                    : null,
+                                child: user.imagePath == null
+                                    ? Icon(Icons.person)
+                                    : null,
+                              ),
+                              SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    user.name,
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    "Age: ${user.age}",
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
@@ -198,11 +191,11 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-void _showSortBottomSheet(BuildContext context) {
-  String selectedSort = 'All';
-
+// Sort bottom sheet
+void _showSortBottomSheet(BuildContext parentContext) {
+  final selectedSort = parentContext.read<UserViewModel>().selectedSort;
   showModalBottomSheet(
-    context: context,
+    context: parentContext,
     backgroundColor: Colors.white,
     elevation: 0,
     shape: RoundedRectangleBorder(
@@ -226,13 +219,18 @@ void _showSortBottomSheet(BuildContext context) {
                 ),
                 SizedBox(height: 15),
                 _buildSortOption("All", selectedSort, (val) {
-                  setModalState(() => selectedSort = val!);
+                  parentContext.read<UserViewModel>().setSort(val!);
+                  Navigator.pop(context);
                 }),
+
                 _buildSortOption("Age: Elder", selectedSort, (val) {
-                  setModalState(() => selectedSort = val!);
+                  parentContext.read<UserViewModel>().setSort(val!);
+                  Navigator.pop(context);
                 }),
+
                 _buildSortOption("Age: Younger", selectedSort, (val) {
-                  setModalState(() => selectedSort = val!);
+                  parentContext.read<UserViewModel>().setSort(val!);
+                  Navigator.pop(context);
                 }),
               ],
             ),
@@ -243,13 +241,13 @@ void _showSortBottomSheet(BuildContext context) {
   );
 }
 
+// Sort option widget
 Widget _buildSortOption(
-    String title,
-    String currentGroup,
-    ValueChanged<String?> onChanged,
-    ) {
+  String title,
+  String currentGroup,
+  ValueChanged<String?> onChanged,
+) {
   bool isSelected = title == currentGroup;
-
   return InkWell(
     onTap: () => onChanged(title),
     borderRadius: BorderRadius.circular(10),
