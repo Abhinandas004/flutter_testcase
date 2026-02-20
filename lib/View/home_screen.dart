@@ -5,39 +5,68 @@ import 'package:provider/provider.dart';
 import '../ViewModel/user_view_model.dart';
 import 'Widgets/add_user_dialog.dart';
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 100) {
+
+        context.read<UserViewModel>().loadMore();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final users = context.watch<UserViewModel>().users;
+    final vm = context.watch<UserViewModel>();
+    final users = vm.users;
+
     return Scaffold(
-      backgroundColor: Color(0xFFEBEBEB),
-      // Floating Action Button
+      backgroundColor: const Color(0xFFEBEBEB),
+
       floatingActionButton: SizedBox(
         height: 70,
         width: 70,
         child: FloatingActionButton(
-          shape: CircleBorder(),
+          shape: const CircleBorder(),
           backgroundColor: Colors.black,
           onPressed: () {
             showDialog(
               context: context,
-              builder: (context) {
-                return AddUserDialog();
-              },
+              builder: (_) => const AddUserDialog(),
             );
           },
-          child: Icon(Icons.add, color: Colors.white, size: 32),
+          child: const Icon(Icons.add, color: Colors.white, size: 32),
         ),
       ),
+
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-            Icon(Icons.location_on, color: Colors.white, size: 22),
-            SizedBox(width: 6),
+            const Icon(Icons.location_on, color: Colors.white, size: 22),
+            const SizedBox(width: 6),
             Text(
               "Nilambur",
               style: GoogleFonts.montserrat(
@@ -49,34 +78,38 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+
       body: Column(
         children: [
-          // Search bar & filter
+
+          // SEARCH + FILTER
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Expanded(
                   child: Container(
                     height: 50,
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: Colors.grey.shade400, width: 2),
+                      border: Border.all(
+                          color: Colors.grey.shade400, width: 2),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.search, color: Color(0xff484848)),
-                        SizedBox(width: 10),
+                        const Icon(Icons.search,
+                            color: Color(0xff484848)),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: TextFormField(
                             onChanged: (value) {
-                              context.read<UserViewModel>().setSearchQuery(
-                                value,
-                              );
+                              context
+                                  .read<UserViewModel>()
+                                  .setSearchQuery(value);
                             },
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: "Search by name",
                               border: InputBorder.none,
                               isCollapsed: true,
@@ -87,8 +120,9 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(width: 12),
-                // filter button
+
+                const SizedBox(width: 12),
+
                 InkWell(
                   onTap: () {
                     _showSortBottomSheet(context);
@@ -100,14 +134,17 @@ class HomeScreen extends StatelessWidget {
                       color: Colors.black,
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: Icon(Icons.filter_list, color: Colors.white),
+                    child: const Icon(Icons.filter_list,
+                        color: Colors.white),
                   ),
                 ),
               ],
             ),
           ),
+
           Padding(
-            padding: EdgeInsets.only(left: 16, bottom: 10),
+            padding:
+            const EdgeInsets.only(left: 16, bottom: 10),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -119,71 +156,95 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          // User list
+
+          // LIST
           Expanded(
             child: users.isEmpty
                 ? Center(
-                    child: Text(
-                      "No users.",
-                      style: GoogleFonts.montserrat(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                  )
+              child: Text(
+                "No users.",
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            )
                 : ListView.builder(
-                    itemCount: users.length,
-                    itemBuilder: (context, index) {
-                      final user = users[index];
-                      return Card(
-                        color: Colors.white,
-                        elevation: 1,
-                        margin: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundImage: user.imagePath != null
-                                    ? FileImage(File(user.imagePath!))
-                                    : null,
-                                child: user.imagePath == null
-                                    ? Icon(Icons.person)
-                                    : null,
-                              ),
-                              SizedBox(width: 12),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    user.name,
-                                    style: GoogleFonts.montserrat(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    "Age: ${user.age}",
-                                    style: GoogleFonts.montserrat(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+              controller: _scrollController,
+              itemCount:
+              users.length + (vm.isLoading ? 1 : 0),
+              itemBuilder: (context, index) {
+
+                if (index == users.length) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                final user = users[index];
+
+                return Card(
+                  color: Colors.white,
+                  elevation: 1,
+                  margin:
+                  const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                    BorderRadius.circular(15),
                   ),
+                  child: Padding(
+                    padding:
+                    const EdgeInsets.all(20),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage:
+                          user.imagePath != null
+                              ? FileImage(
+                              File(user.imagePath!))
+                              : null,
+                          child: user.imagePath ==
+                              null
+                              ? const Icon(
+                              Icons.person)
+                              : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment:
+                          CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user.name,
+                              style:
+                              GoogleFonts.montserrat(
+                                fontSize: 15,
+                                fontWeight:
+                                FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "Age: ${user.age}",
+                              style:
+                              GoogleFonts.montserrat(
+                                fontSize: 15,
+                                fontWeight:
+                                FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -193,19 +254,18 @@ class HomeScreen extends StatelessWidget {
 
 // Sort bottom sheet
 void _showSortBottomSheet(BuildContext parentContext) {
-  final selectedSort = parentContext.read<UserViewModel>().selectedSort;
   showModalBottomSheet(
     context: parentContext,
     backgroundColor: Colors.white,
     elevation: 0,
-    shape: RoundedRectangleBorder(
+    shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(35)),
     ),
     builder: (context) {
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setModalState) {
+      return Consumer<UserViewModel>(
+        builder: (context, vm, _) {
           return Padding(
-            padding: EdgeInsets.fromLTRB(24, 30, 24, 40),
+            padding: const EdgeInsets.fromLTRB(24, 30, 24, 40),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,19 +277,20 @@ void _showSortBottomSheet(BuildContext parentContext) {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 15),
-                _buildSortOption("All", selectedSort, (val) {
-                  parentContext.read<UserViewModel>().setSort(val!);
+                const SizedBox(height: 15),
+
+                _buildSortOption("All", vm.selectedSort, (val) {
+                  vm.setSort(val!);
                   Navigator.pop(context);
                 }),
 
-                _buildSortOption("Age: Elder", selectedSort, (val) {
-                  parentContext.read<UserViewModel>().setSort(val!);
+                _buildSortOption("Age: Elder", vm.selectedSort, (val) {
+                  vm.setSort(val!);
                   Navigator.pop(context);
                 }),
 
-                _buildSortOption("Age: Younger", selectedSort, (val) {
-                  parentContext.read<UserViewModel>().setSort(val!);
+                _buildSortOption("Age: Younger", vm.selectedSort, (val) {
+                  vm.setSort(val!);
                   Navigator.pop(context);
                 }),
               ],
